@@ -1,6 +1,5 @@
 use anyhow::{Result, bail};
 use chrono::Utc;
-use ctrlc;
 use polars::prelude::*;
 use std::fs::{File, create_dir_all};
 use std::path::Path;
