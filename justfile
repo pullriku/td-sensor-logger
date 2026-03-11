@@ -1,4 +1,7 @@
-start:
+build:
+    cargo build --release
+
+start: build
     ./start.sh
 stop:
     ./stop.sh
