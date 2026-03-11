@@ -1,6 +1,10 @@
 start:
     ./start.sh
 stop:
-    sudo ./stop.sh
+    ./stop.sh
+ps:
+    pgrep -a td-sensor-logge
 flush:
-    just stop && just start
+    ./flush.sh
+plot:
+    cd sensor-plotter && uv run python main.py

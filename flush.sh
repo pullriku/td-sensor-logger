@@ -12,4 +12,4 @@ if ! kill -0 "$pid" 2>/dev/null; then
   exit 1
 fi
 
-kill -INT "$pid"
+kill -USR1 "$pid"

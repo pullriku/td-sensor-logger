@@ -1,0 +1,11 @@
+[project]
+name = "sensor-plotter"
+version = "0.1.0"
+description = "Plot temperature, humidity, and pressure from td-sensor-logger parquet data"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "matplotlib>=3.10.1",
+    "polars>=1.33.1",
+    "pyarrow>=21.0.0",
+]
