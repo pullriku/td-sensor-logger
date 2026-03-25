@@ -25,7 +25,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("../plots/sensor-history.png"),
+        default=Path("plots/sensor-history.png"),
         help="Path to the output PNG file.",
     )
     return parser.parse_args()
