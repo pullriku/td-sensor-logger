@@ -10,4 +10,4 @@ ps:
 flush:
     ./flush.sh
 plot:
-    cd sensor-plotter && uv run python main.py
+    cd sensor-plotter && uv run python main.py && uv run fft_.py
