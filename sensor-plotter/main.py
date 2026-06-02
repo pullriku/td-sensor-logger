@@ -12,6 +12,20 @@ import polars as pl
 JST = ZoneInfo("Asia/Tokyo")
 
 
+def parse_datetime_arg(value: str) -> datetime:
+    try:
+        parsed = datetime.fromisoformat(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(
+            "Datetime must be ISO 8601 like 2026-06-01 or 2026-06-01T00:00:00."
+        ) from exc
+
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=JST)
+
+    return parsed.astimezone(JST)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Plot td-sensor-logger parquet files into a PNG graph."
@@ -28,15 +42,45 @@ def parse_args() -> argparse.Namespace:
         default=Path("plots/sensor-history.png"),
         help="Path to the output PNG file.",
     )
+    parser.add_argument(
+        "--from",
+        dest="from_datetime",
+        type=parse_datetime_arg,
+        default=None,
+        help="Inclusive lower bound in JST. Examples: 2026-06-01, 2026-06-01T00:00:00",
+    )
+    parser.add_argument(
+        "--to",
+        dest="to_datetime",
+        type=parse_datetime_arg,
+        default=None,
+        help="Exclusive upper bound in JST. Examples: 2026-06-03, 2026-06-03T00:00:00",
+    )
     return parser.parse_args()
 
 
-def load_data(data_dir: Path) -> pl.DataFrame:
+def to_epoch_ms(dt: datetime) -> int:
+    return int(dt.timestamp() * 1000)
+
+
+def load_data(
+    data_dir: Path,
+    from_datetime: datetime | None = None,
+    to_datetime: datetime | None = None,
+) -> pl.DataFrame:
     parquet_files = sorted(data_dir.glob("*.parquet"))
     if not parquet_files:
         raise FileNotFoundError(f"No parquet files found in {data_dir}")
 
-    return pl.read_parquet(parquet_files).sort("ts_ms")
+    lf = pl.scan_parquet(parquet_files)
+
+    if from_datetime is not None:
+        lf = lf.filter(pl.col("ts_ms") >= to_epoch_ms(from_datetime))
+
+    if to_datetime is not None:
+        lf = lf.filter(pl.col("ts_ms") < to_epoch_ms(to_datetime))
+
+    return lf.sort("ts_ms").collect()
 
 
 def plot_data(df: pl.DataFrame, output_path: Path) -> None:
@@ -71,7 +115,7 @@ def plot_data(df: pl.DataFrame, output_path: Path) -> None:
 
 def main() -> None:
     args = parse_args()
-    df = load_data(args.data_dir)
+    df = load_data(args.data_dir, args.from_datetime, args.to_datetime)
     plot_data(df, args.output)
     print(f"Saved plot to {args.output}")
 

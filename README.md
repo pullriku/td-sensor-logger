@@ -100,6 +100,17 @@ uv sync
 uv run python main.py
 ```
 
+範囲指定する場合:
+
+```bash
+uv run python main.py --from 2026-06-01 --to 2026-06-03
+uv run python main.py --from 2026-06-01T12:00:00
+```
+
+`--from` は以上、`--to` は未満です。どちらも JST として解釈され、日付だけを指定した場合は `00:00:00` 扱いになります。
+
+FFT プロットも同様に範囲指定できます。
+
 ## just
 
 `just` が入っていれば次も使えます。
@@ -109,4 +120,7 @@ just start
 just flush
 just stop
 just plot
+just plot-from 2026-06-01
+just plot-to 2026-06-03T09:30:00
+just plot-range 2026-06-01 2026-06-03
 ```

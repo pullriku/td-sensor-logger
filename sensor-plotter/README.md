@@ -15,3 +15,19 @@ uv run python main.py
 ```bash
 uv run python main.py --output ../plots/latest.png
 ```
+
+日時範囲を指定する場合:
+
+```bash
+uv run python main.py --from 2026-06-01 --to 2026-06-03
+uv run python main.py --to 2026-06-03T09:30:00
+```
+
+`--from` は以上、`--to` は未満です。どちらも JST として扱い、`2026-06-01` のような日付だけの指定もできます。
+
+FFT プロットも同じ引数で実行できます。
+
+```bash
+uv run python fft_.py --from 2026-06-01 --to 2026-06-03
+uv run python fft_.py --output ../plots/fft-latest.png
+```
