@@ -1,0 +1,17 @@
+[Unit]
+Description=Sensor Logger
+After=default.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/projects/td-sensor-logger
+EnvironmentFile=%h/projects/td-sensor-logger/systemd/user/td-sensor-logger.env
+ExecStart=%h/projects/td-sensor-logger/systemd/user/run-td-sensor-logger.sh
+ExecReload=/bin/kill -USR1 $MAINPID
+KillSignal=SIGINT
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

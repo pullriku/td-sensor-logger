@@ -45,18 +45,59 @@ cargo run --release -- tdsn7200 --interval 60 --flush-count 10000
 
 内部的には `td-usb tdsn7200 get` を一定間隔で呼び出し、`温度(℃),湿度(%),気圧(hPa)` の順で返る値を保存します。
 
-### 付属スクリプト
+### systemd user service
 
-バックグラウンド起動:
+ログインしていなくても自動起動したい場合は、`systemd --user` サービスとして動かせます。
+この方法なら、ロガー本体は通常ユーザー権限で動き、`SIGUSR1` による手動フラッシュも維持できます。
+
+1. まず release build します。
+
+```bash
+cargo build --release
+```
+
+2. 設定ファイルを作ります。
+
+```bash
+cp systemd/user/td-sensor-logger.env.example systemd/user/td-sensor-logger.env
+```
+
+必要なら `MODEL_NAME` / `INTERVAL` / `FLUSH_COUNT` を編集してください。
+
+3. user service を登録して起動します。
+
+```bash
+mkdir -p ~/.config/systemd/user
+ln -sf "$PWD/systemd/user/td-sensor-logger.service" ~/.config/systemd/user/td-sensor-logger.service
+systemctl --user daemon-reload
+systemctl --user enable --now td-sensor-logger.service
+```
+
+状態確認:
+
+```bash
+systemctl --user status td-sensor-logger.service
+journalctl --user -u td-sensor-logger.service -f
+```
+
+手動フラッシュ:
+
+```bash
+systemctl --user reload td-sensor-logger.service
+```
+
+停止:
+
+```bash
+systemctl --user stop td-sensor-logger.service
+```
+
+付属スクリプトでも同じ操作ができます。
+
+起動:
 
 ```bash
 ./start.sh
-```
-
-テスト用の短い間隔で起動:
-
-```bash
-./start_test.sh
 ```
 
 停止:
@@ -71,7 +112,14 @@ cargo run --release -- tdsn7200 --interval 60 --flush-count 10000
 ./flush.sh
 ```
 
-`start.sh` / `start_test.sh` は `logger.pid` と `logger.log` を作成します。
+起動時に自動起動させるには、管理者権限で linger を有効にしてください。
+
+```bash
+sudo loginctl enable-linger "$USER"
+```
+
+これで OS 起動時に `td-sensor-logger.service` が立ち上がります。
+リポジトリを別の場所へ移した場合は、[`systemd/user/td-sensor-logger.service`](/home/tatsumi/projects/td-sensor-logger/systemd/user/td-sensor-logger.service) の `WorkingDirectory` と `ExecStart` を合わせて更新してください。
 
 ## 出力
 
@@ -119,6 +167,8 @@ FFT プロットも同様に範囲指定できます。
 just start
 just flush
 just stop
+just status
+just logs
 just plot
 just plot-from 2026-06-01
 just plot-to 2026-06-03T09:30:00
