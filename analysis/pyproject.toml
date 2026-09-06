@@ -1,0 +1,29 @@
+[project]
+name = "analyze"
+version = "0.1.0"
+description = "Analyze td-sensor-logger parquet data"
+readme = "README.md"
+authors = [
+    { name = "pullriku", email = "riku3dno.1@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "lightgbm>=4.6.0",
+    "matplotlib>=3.10.1",
+    "matplotlib-fontja>=1.1.0",
+    "optuna>=4.9.0",
+    "polars>=1.33.1",
+    "pyarrow>=21.0.0",
+    "scikit-learn>=1.7.0",
+    "torch>=2.13.0",
+]
+
+[project.scripts]
+analyze-stats = "analyze.cli.stats:main"
+analyze-correlations = "analyze.cli.correlations:main"
+analyze-derived = "analyze.cli.derived:main"
+analyze-forecast = "analyze.cli.forecast:main"
+
+[build-system]
+requires = ["uv_build>=0.9.15,<0.10.0"]
+build-backend = "uv_build"

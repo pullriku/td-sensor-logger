@@ -2,7 +2,7 @@
 
 東京デバイセズの USB 温度・湿度・気圧センサ [`TDSN7200`](https://tokyodevices.com/items/327?srsltid=AfmBOoqqai4qP3UvxIijZmnyYZUMB6M9nDpf91o0zKIFW3eNnbLab3Gm) を、[`td-usb`](https://github.com/tokyodevices/td-usb) 経由で定期取得し、`Parquet` で保存するロガーです。
 
-保存先は `data/`、可視化用に `sensor-plotter/` も同梱しています。
+保存先は `data/`、可視化用に `sensor-plotter/`、分析用に `analysis/` も同梱しています。
 
 ## できること
 
@@ -158,6 +158,21 @@ uv run python main.py --from 2026-06-01T12:00:00
 `--from` は以上、`--to` は未満です。どちらも JST として解釈され、日付だけを指定した場合は `00:00:00` 扱いになります。
 
 FFT プロットも同様に範囲指定できます。
+
+## 分析
+
+`analysis/` で基本統計、期間集計、欠損値・異常値確認、相関分析、ラグ相関、露点温度・絶対湿度・不快指数、LSTM を含む短期予測モデル比較を実行できます。
+
+```bash
+cd analysis
+uv sync
+uv run analyze-stats --data-dir ../data
+uv run analyze-correlations --data-dir ../data
+uv run analyze-derived --data-dir ../data
+uv run analyze-forecast --data-dir ../data
+```
+
+PNG グラフを出力する分析では `matplotlib_fontja` を読み込み、日本語ラベルの文字化けを避けています。
 
 ## just
 
